@@ -1,0 +1,159 @@
+$primary: #52b788;
+$primary-dark: #2d6a4f;
+$bg: #0f1923;
+$surface: #1a2535;
+$surface2: #1e2d40;
+$border: #2e3d52;
+$text: #e8eaf0;
+$muted: #8892a4;
+$green: #52b788;
+$red: #e63946;
+$orange: #ff6b35;
+$sidebar-w: 240px;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:host { display: block; min-height: 100vh; background: $bg; }
+
+.layout { display: flex; min-height: 100vh; background: $bg; font-family: 'Segoe UI', sans-serif; color: $text; }
+
+.sidebar {
+  width: $sidebar-w; background: $surface; border-right: 1px solid $border;
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  transition: transform 0.3s ease;
+  @media (max-width: 768px) {
+    transform: translateX(-100%);
+    .layout.sidebar-open & { transform: translateX(0); }
+  }
+}
+.sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding: 1.5rem 1.25rem; border-bottom: 1px solid $border;
+  .brand-icon { font-size: 1.8rem; }
+  .brand-name { font-size: 1.2rem; font-weight: 700; color: $primary; }
+}
+.nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.nav-item {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.9rem; border-radius: 10px;
+  color: $muted; text-decoration: none; font-size: 0.9rem; transition: all 0.2s;
+  .nav-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+  &:hover  { background: $surface2; color: $text; }
+  &.active { background: rgba($primary, 0.15); color: $primary; font-weight: 600; }
+  &.logout:hover { background: rgba($red, 0.12); color: $red; }
+}
+.sidebar-footer { padding: 0.75rem; border-top: 1px solid $border; }
+.overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99;
+  @media (max-width: 768px) { .layout.sidebar-open & { display: block; } }
+}
+
+.main { flex: 1; margin-left: $sidebar-w; display: flex; flex-direction: column;
+  @media (max-width: 768px) { margin-left: 0; } }
+.topbar {
+  display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
+  background: $surface; border-bottom: 1px solid $border; position: sticky; top: 0; z-index: 50;
+  .menu-btn { display: none; background: none; border: none; color: $text; font-size: 1.4rem; cursor: pointer;
+    @media (max-width: 768px) { display: block; } }
+  .topbar-title { flex: 1; font-size: 1rem; font-weight: 600; }
+}
+.topbar-user { display: flex; align-items: center; gap: 0.75rem;
+  .avatar { width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; }
+  .user-name { display: block; font-size: 0.9rem; font-weight: 600; }
+  .user-role { display: block; font-size: 0.75rem; color: $muted; }
+}
+.content { padding: 1.5rem; flex: 1; }
+
+// ── Day Tabs ─────────────────────────────────────────
+.day-tabs {
+  display: flex; gap: 0.5rem; margin-bottom: 1.25rem;
+  overflow-x: auto; padding-bottom: 0.25rem;
+  &::-webkit-scrollbar { height: 3px; }
+  &::-webkit-scrollbar-thumb { background: $border; border-radius: 4px; }
+}
+.day-tab {
+  display: flex; flex-direction: column; align-items: center; position: relative;
+  padding: 0.6rem 1.2rem; border-radius: 10px;
+  background: $surface; border: 1.5px solid $border;
+  color: $muted; font-size: 0.88rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+  &:hover { border-color: $primary; color: $text; }
+  &.active { background: rgba($primary,0.15); border-color: $primary; color: $primary; font-weight: 700; }
+  &.today { border-color: rgba($green,0.5); }
+  .today-dot { width: 6px; height: 6px; border-radius: 50%; background: $green; margin-top: 4px; }
+}
+
+// ── Day Header ───────────────────────────────────────
+.day-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;
+  h2 { font-size: 1.2rem; font-weight: 700; }
+  .today-badge { display: inline-block; margin-left: 0.5rem; font-size: 0.72rem; padding: 0.15rem 0.6rem; border-radius: 20px; background: rgba($green,0.15); color: $green; font-weight: 600; }
+}
+.day-actions { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.resp-count { font-size: 0.8rem; padding: 0.3rem 0.8rem; border-radius: 20px;
+  background: rgba($primary,0.1); color: $primary; font-weight: 500; }
+.btn-export {
+  padding: 0.4rem 0.9rem; border: 1.5px solid $border; border-radius: 9px;
+  background: transparent; color: $muted; font-size: 0.82rem; cursor: pointer;
+  &:hover { border-color: $primary; color: $primary; }
+}
+
+// ── Meal Summary ─────────────────────────────────────
+.summary-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.5rem;
+  @media (max-width: 480px) { grid-template-columns: 1fr; } }
+.sum-card {
+  background: $surface; border: 1px solid $border; border-radius: 14px;
+  padding: 0.85rem 1rem; display: flex; align-items: center; gap: 0.75rem;
+  animation: slideUp 0.4s ease;
+  .sum-icon { font-size: 1.6rem; }
+  .sum-label { font-size: 0.75rem; color: $muted; }
+  .sum-val { font-size: 0.9rem; font-weight: 700; color: $text; margin-top: 0.1rem; }
+}
+.sum-card.breakfast { border-left: 4px solid #ffb703; }
+.sum-card.lunch     { border-left: 4px solid $green; }
+.sum-card.dinner    { border-left: 4px solid #4361ee; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Empty State ───────────────────────────────────────
+.empty-state { text-align: center; padding: 3rem 1rem;
+  .empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+  p { color: $muted; }
+}
+
+// ── Table ─────────────────────────────────────────────
+.table-wrap { background: $surface; border: 1px solid $border; border-radius: 14px; overflow: hidden; }
+.resp-table { width: 100%; border-collapse: collapse;
+  th { background: $surface2; padding: 0.85rem 1rem; text-align: left;
+    font-size: 0.78rem; color: $muted; text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid $border; }
+  td { padding: 0.85rem 1rem; font-size: 0.88rem; border-bottom: 1px solid rgba($border,0.5); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+}
+.emp-col { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; }
+.emp-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, $orange, $primary-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.chip { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem;
+  padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600; text-transform: capitalize;
+  &.chip-g { background: rgba($green,0.15); color: $green; }
+  &.chip-r { background: rgba($red,0.15); color: $red; }
+  &.chip-m { background: rgba($muted,0.12); color: $muted; }
+}
+
+// ── Mobile Cards ──────────────────────────────────────
+.resp-cards { display: flex; flex-direction: column; gap: 0.75rem; }
+.resp-card { background: $surface; border: 1px solid $border; border-radius: 14px; padding: 1rem; }
+.resp-card-top { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.75rem; }
+.emp-name { font-weight: 600; }
+.resp-card-meals { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.desktop-only { @media (max-width: 640px) { display: none; } }
+.mobile-only  { display: none; @media (max-width: 640px) { display: flex; } }

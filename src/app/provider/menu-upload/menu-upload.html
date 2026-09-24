@@ -1,1 +1,177 @@
-<p>menu-upload works!</p>
+<div class="layout" [class.sidebar-open]="sidebarOpen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🍱</span>
+      <span class="brand-name">MessApp</span>
+    </div>
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/provider'}"
+          (click)="sidebarOpen = false">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item logout" routerLink="/login">
+        <span class="nav-icon">🚪</span><span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="overlay" (click)="sidebarOpen = false"></div>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" (click)="sidebarOpen = !sidebarOpen">☰</button>
+      <div class="topbar-title">📤 Menu Upload</div>
+      <div class="topbar-user">
+        <div class="avatar">P</div>
+        <div class="user-info">
+          <span class="user-name">{{ providerName }}</span>
+          <span class="user-role">Provider</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Day Tabs -->
+      <div class="day-tabs">
+        @for (day of weekDays; track day.date; let i = $index) {
+          <button class="day-tab" [class.active]="selectedDay === i"
+            [class.today]="day.isToday" (click)="selectedDay = i">
+            <span class="day-label">{{ day.label }}</span>
+            @if (day.isToday) { <span class="today-dot"></span> }
+          </button>
+        }
+      </div>
+
+      <!-- Day Header -->
+      <div class="day-header">
+        <div>
+          <h2>{{ currentDay.date }}</h2>
+          @if (currentDay.isToday) { <span class="today-badge">Today</span> }
+        </div>
+        <div class="day-actions">
+          <span class="progress-chip">
+            {{ publishedCount }} / 3 Published
+          </span>
+          @if (!allPublished) {
+            <button class="btn-publish-all" (click)="publishAll()">
+              🚀 Publish All
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        @for (s of stats; track s.label) {
+          <div class="stat-card" [style.--accent]="s.color">
+            <span class="stat-icon">{{ s.icon }}</span>
+            <div>
+              <div class="stat-label">{{ s.label }}</div>
+              <div class="stat-value">{{ s.value }}</div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Meal Upload Area + Preview side-by-side on desktop -->
+      <div class="upload-layout">
+
+        <!-- Left: Upload Forms -->
+        <div class="upload-forms">
+          @for (meal of currentDay.meals; track meal.slot) {
+            <div class="meal-card" [class.published]="meal.published"
+              [style.--meal-color]="meal.color">
+
+              <div class="meal-card-header">
+                <span class="meal-icon">{{ meal.icon }}</span>
+                <div class="meal-meta">
+                  <span class="meal-slot">{{ meal.slot }}</span>
+                  <span class="meal-time">{{ meal.time }}</span>
+                </div>
+                @if (meal.published) {
+                  <span class="badge-pub">✅ Published</span>
+                } @else {
+                  <span class="badge-pend">⏳ Pending</span>
+                }
+              </div>
+
+              @if (!meal.published) {
+                <div class="meal-input-area">
+                  <label>{{ meal.slot }} Items
+                    <span class="hint">Separate items with commas or new lines</span>
+                  </label>
+                  <textarea [(ngModel)]="meal.draft" rows="3"
+                    [placeholder]="'e.g. Idli, Sambar, Coconut Chutney'">
+                  </textarea>
+                </div>
+                <div class="meal-footer">
+                  <span class="price-note">₹60 per meal</span>
+                  <button class="btn-upload" (click)="publishMeal(meal)"
+                    [disabled]="!meal.draft.trim()">
+                    📤 Upload {{ meal.slot }}
+                  </button>
+                </div>
+              } @else {
+                <div class="published-items">
+                  @for (item of meal.items; track item.name) {
+                    <span class="item-chip">{{ item.name }}</span>
+                  }
+                </div>
+                <div class="meal-footer">
+                  <span class="price-note">₹60 per meal</span>
+                  <button class="btn-edit" (click)="editMeal(meal)">✏️ Edit</button>
+                </div>
+              }
+
+            </div>
+          }
+        </div>
+
+        <!-- Right: Preview Card -->
+        <div class="preview-panel">
+          <div class="preview-card">
+            <div class="preview-header">
+              <h3>📋 Menu Preview</h3>
+              <span class="preview-date">{{ currentDay.date }}</span>
+            </div>
+
+            @for (meal of currentDay.meals; track meal.slot) {
+              <div class="preview-item" [style.--meal-color]="meal.color">
+                <div class="preview-item-header">
+                  <span class="preview-icon">{{ meal.icon }}</span>
+                  <strong>{{ meal.slot }}</strong>
+                  <span class="preview-time">{{ meal.time }}</span>
+                </div>
+                @if (meal.published && meal.items.length) {
+                  <p class="preview-text">
+                    {{ meal.items.map(i => i.name).join(', ') }}
+                  </p>
+                } @else if (meal.draft.trim()) {
+                  <p class="preview-text draft">{{ meal.draft }}</p>
+                } @else {
+                  <p class="preview-empty">Not uploaded yet</p>
+                }
+              </div>
+            }
+
+            <div class="preview-note">
+              Employees will see this menu once published
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,163 @@
+$primary: #52b788;
+$primary-dark: #2d6a4f;
+$orange: #ff6b35;
+$bg: #0f1923;
+$surface: #1a2535;
+$surface2: #1e2d40;
+$border: #2e3d52;
+$text: #e8eaf0;
+$muted: #8892a4;
+$green: #52b788;
+$red: #e63946;
+$sidebar-w: 240px;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:host { display: block; min-height: 100vh; background: $bg; }
+
+.layout { display: flex; min-height: 100vh; background: $bg; font-family: 'Segoe UI', sans-serif; color: $text; }
+
+.sidebar {
+  width: $sidebar-w; background: $surface; border-right: 1px solid $border;
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  transition: transform 0.3s ease;
+  @media (max-width: 768px) {
+    transform: translateX(-100%);
+    .layout.sidebar-open & { transform: translateX(0); }
+  }
+}
+.sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding: 1.5rem 1.25rem; border-bottom: 1px solid $border;
+  .brand-icon { font-size: 1.8rem; }
+  .brand-name { font-size: 1.2rem; font-weight: 700; color: $primary; }
+}
+.nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.nav-item {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.9rem; border-radius: 10px;
+  color: $muted; text-decoration: none; font-size: 0.9rem; transition: all 0.2s;
+  .nav-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+  &:hover  { background: $surface2; color: $text; }
+  &.active { background: rgba($primary, 0.15); color: $primary; font-weight: 600; }
+  &.logout:hover { background: rgba($red, 0.12); color: $red; }
+}
+.sidebar-footer { padding: 0.75rem; border-top: 1px solid $border; }
+.overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99;
+  @media (max-width: 768px) { .layout.sidebar-open & { display: block; } }
+}
+.main { flex: 1; margin-left: $sidebar-w; display: flex; flex-direction: column;
+  @media (max-width: 768px) { margin-left: 0; } }
+.topbar {
+  display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem;
+  background: $surface; border-bottom: 1px solid $border; position: sticky; top: 0; z-index: 50;
+  .menu-btn { display: none; background: none; border: none; color: $text; font-size: 1.4rem; cursor: pointer;
+    @media (max-width: 768px) { display: block; } }
+  .topbar-title { flex: 1; font-size: 1rem; font-weight: 600; }
+}
+.topbar-user { display: flex; align-items: center; gap: 0.75rem;
+  .avatar { width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; }
+  .user-name { display: block; font-size: 0.9rem; font-weight: 600; }
+  .user-role { display: block; font-size: 0.75rem; color: $muted; }
+}
+.content { padding: 1.5rem; flex: 1; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Filter Bar ────────────────────────────────────────
+.filter-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
+}
+.summary-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.sum-chip {
+  font-size: 0.78rem; padding: 0.3rem 0.75rem; border-radius: 20px; font-weight: 600;
+  &.total   { background: rgba($primary,0.1); color: $primary; }
+  &.pending { background: rgba($muted,0.1);   color: $muted; }
+  &.replied { background: rgba($green,0.1);   color: $green; }
+}
+.filter-tabs { display: flex; gap: 0.4rem; }
+.filter-tab {
+  padding: 0.4rem 0.85rem; border-radius: 9px; border: 1.5px solid $border;
+  background: $surface; color: $muted; font-size: 0.82rem; cursor: pointer;
+  &:hover { border-color: $primary; color: $text; }
+  &.active { background: rgba($primary,0.12); border-color: $primary; color: $primary; font-weight: 700; }
+}
+
+// ── Comments List ─────────────────────────────────────
+.comments-list { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.comment-card {
+  background: $surface; border: 1px solid $border; border-radius: 16px;
+  padding: 1.25rem; animation: slideUp 0.4s ease;
+  &.has-reply { border-color: rgba($green, 0.25); }
+}
+
+// ── Bubbles ───────────────────────────────────────────
+.comment-bubble {
+  border-radius: 12px; padding: 1rem; margin-bottom: 0.85rem;
+  &.emp  { background: rgba(255,255,255,0.03); }
+  &.prov { background: rgba($primary,0.05); border: 1px solid rgba($primary,0.15); }
+  &:last-child { margin-bottom: 0; }
+}
+.bubble-header {
+  display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.6rem;
+  .bubble-name { display: block; font-size: 0.9rem; font-weight: 600; }
+  .bubble-time { display: block; font-size: 0.73rem; color: $muted; }
+}
+.bubble-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700;
+  &.emp-av  { background: linear-gradient(135deg, $orange, #e85d2a); color: #fff; }
+  &.prov-av { background: $surface2; font-size: 1.2rem; }
+}
+.role-tag {
+  margin-left: auto; font-size: 0.68rem; padding: 0.15rem 0.55rem; border-radius: 20px; font-weight: 600;
+  &.emp-tag  { background: rgba($orange,0.12); color: $orange; }
+  &.prov-tag { background: rgba($primary,0.12); color: $primary; }
+}
+.bubble-text { font-size: 0.9rem; color: $text; line-height: 1.6; padding-left: 3rem; }
+.btn-edit-reply {
+  margin-left: 3rem; margin-top: 0.5rem; background: none; border: none;
+  color: $muted; font-size: 0.8rem; cursor: pointer;
+  &:hover { color: $primary; }
+}
+
+// ── No Reply ─────────────────────────────────────────
+.no-reply-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1rem; background: rgba($muted,0.06); border-radius: 10px;
+  font-size: 0.85rem; color: $muted;
+}
+.btn-reply {
+  padding: 0.4rem 1rem; border: 1.5px solid rgba($primary,0.4); border-radius: 9px;
+  background: rgba($primary,0.08); color: $primary; font-size: 0.82rem; cursor: pointer;
+  &:hover { background: $primary; color: #fff; }
+}
+
+// ── Reply Box ─────────────────────────────────────────
+.reply-box {
+  background: $surface2; border-radius: 12px; padding: 0.85rem; animation: slideUp 0.25s ease;
+  textarea {
+    width: 100%; background: #111d2b; border: 1.5px solid $border; border-radius: 9px;
+    padding: 0.7rem; color: $text; font-size: 0.9rem; resize: vertical;
+    font-family: 'Segoe UI', sans-serif; outline: none;
+    &:focus { border-color: $primary; }
+    &::placeholder { color: #3d4f63; }
+  }
+}
+.reply-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.65rem; }
+.btn-cancel {
+  padding: 0.45rem 0.9rem; border: 1.5px solid $border; border-radius: 9px;
+  background: transparent; color: $muted; font-size: 0.82rem; cursor: pointer;
+  &:hover { border-color: $red; color: $red; }
+}
+.btn-send-reply {
+  padding: 0.45rem 1.1rem; border: none; border-radius: 9px;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: #fff; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}

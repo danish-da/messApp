@@ -1,1 +1,138 @@
-<p>responses works!</p>
+<div class="layout" [class.sidebar-open]="sidebarOpen">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🍱</span>
+      <span class="brand-name">MessApp</span>
+    </div>
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/provider'}"
+          (click)="sidebarOpen = false">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item logout" routerLink="/login">
+        <span class="nav-icon">🚪</span><span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="overlay" (click)="sidebarOpen = false"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" (click)="sidebarOpen = !sidebarOpen">☰</button>
+      <div class="topbar-title">📊 Employee Responses</div>
+      <div class="topbar-user">
+        <div class="avatar">P</div>
+        <div class="user-info">
+          <span class="user-name">{{ providerName }}</span>
+          <span class="user-role">Provider</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Day Tabs -->
+      <div class="day-tabs">
+        @for (day of days; track day.date; let i = $index) {
+          <button class="day-tab" [class.active]="selectedDay === i"
+            [class.today]="day.isToday" (click)="selectedDay = i">
+            <span>{{ day.label }}</span>
+            @if (day.isToday) { <span class="today-dot"></span> }
+          </button>
+        }
+      </div>
+
+      <!-- Day Header -->
+      <div class="day-header">
+        <div>
+          <h2>{{ currentDay.date }}</h2>
+          @if (currentDay.isToday) { <span class="today-badge">Today</span> }
+        </div>
+        <div class="day-actions">
+          <span class="resp-count">{{ responses.length }} responded</span>
+          <button class="btn-export" (click)="exportCSV()">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Meal Summary -->
+      <div class="summary-row">
+        <div class="sum-card breakfast">
+          <span class="sum-icon">🌅</span>
+          <div class="sum-label">Breakfast</div>
+          <div class="sum-val">{{ mealSummary.breakfast }} needed</div>
+        </div>
+        <div class="sum-card lunch">
+          <span class="sum-icon">☀️</span>
+          <div class="sum-label">Lunch</div>
+          <div class="sum-val">{{ mealSummary.lunch }} needed</div>
+        </div>
+        <div class="sum-card dinner">
+          <span class="sum-icon">🌙</span>
+          <div class="sum-label">Dinner</div>
+          <div class="sum-val">{{ mealSummary.dinner }} needed</div>
+        </div>
+      </div>
+
+      @if (responses.length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">📭</span>
+          <p>No responses yet for {{ currentDay.date }}</p>
+        </div>
+      } @else {
+
+        <!-- Desktop Table -->
+        <div class="table-wrap desktop-only">
+          <table class="resp-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>🌅 Breakfast</th>
+                <th>☀️ Lunch</th>
+                <th>🌙 Dinner</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of responses; track r.name) {
+                <tr>
+                  <td class="emp-col">
+                    <div class="emp-avatar">{{ r.name[0] }}</div>
+                    {{ r.name }}
+                  </td>
+                  <td><span class="chip" [class]="chipClass(r.breakfast)">{{ slotIcon(r.breakfast) }} {{ r.breakfast }}</span></td>
+                  <td><span class="chip" [class]="chipClass(r.lunch)">{{ slotIcon(r.lunch) }} {{ r.lunch }}</span></td>
+                  <td><span class="chip" [class]="chipClass(r.dinner)">{{ slotIcon(r.dinner) }} {{ r.dinner }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="resp-cards mobile-only">
+          @for (r of responses; track r.name) {
+            <div class="resp-card">
+              <div class="resp-card-top">
+                <div class="emp-avatar">{{ r.name[0] }}</div>
+                <span class="emp-name">{{ r.name }}</span>
+              </div>
+              <div class="resp-card-meals">
+                <span class="chip" [class]="chipClass(r.breakfast)">🌅 {{ r.breakfast }}</span>
+                <span class="chip" [class]="chipClass(r.lunch)">☀️ {{ r.lunch }}</span>
+                <span class="chip" [class]="chipClass(r.dinner)">🌙 {{ r.dinner }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

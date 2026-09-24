@@ -1,1 +1,119 @@
-<p>comments-view works!</p>
+<div class="layout" [class.sidebar-open]="sidebarOpen">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🍱</span>
+      <span class="brand-name">MessApp</span>
+    </div>
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/provider'}"
+          (click)="sidebarOpen = false">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item logout" routerLink="/login">
+        <span class="nav-icon">🚪</span><span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="overlay" (click)="sidebarOpen = false"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" (click)="sidebarOpen = !sidebarOpen">☰</button>
+      <div class="topbar-title">💬 Employee Comments</div>
+      <div class="topbar-user">
+        <div class="avatar">P</div>
+        <div class="user-info">
+          <span class="user-name">{{ providerName }}</span>
+          <span class="user-role">Provider</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Summary + Filter -->
+      <div class="filter-bar">
+        <div class="summary-chips">
+          <span class="sum-chip total">💬 {{ comments.length }} Total</span>
+          <span class="sum-chip pending">⏳ {{ pendingCount }} Pending</span>
+          <span class="sum-chip replied">✅ {{ repliedCount }} Replied</span>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab" [class.active]="filterStatus === 'all'"     (click)="filterStatus = 'all'">All</button>
+          <button class="filter-tab" [class.active]="filterStatus === 'pending'"  (click)="filterStatus = 'pending'">Pending</button>
+          <button class="filter-tab" [class.active]="filterStatus === 'replied'"  (click)="filterStatus = 'replied'">Replied</button>
+        </div>
+      </div>
+
+      <!-- Comments List -->
+      <div class="comments-list">
+        @for (c of filtered; track c.id) {
+          <div class="comment-card" [class.has-reply]="!!c.reply">
+
+            <!-- Employee Comment -->
+            <div class="comment-bubble emp">
+              <div class="bubble-header">
+                <div class="bubble-avatar emp-av">{{ c.employeeName[0] }}</div>
+                <div>
+                  <span class="bubble-name">{{ c.employeeName }}</span>
+                  <span class="bubble-time">{{ c.date }}</span>
+                </div>
+                <span class="role-tag emp-tag">Employee</span>
+              </div>
+              <p class="bubble-text">{{ c.text }}</p>
+            </div>
+
+            <!-- Provider Reply -->
+            @if (c.reply && !c.replying) {
+              <div class="comment-bubble prov">
+                <div class="bubble-header">
+                  <div class="bubble-avatar prov-av">🍽️</div>
+                  <div>
+                    <span class="bubble-name">{{ providerName }}</span>
+                    <span class="bubble-time">{{ c.replyDate }}</span>
+                  </div>
+                  <span class="role-tag prov-tag">Provider</span>
+                </div>
+                <p class="bubble-text">{{ c.reply }}</p>
+                <button class="btn-edit-reply" (click)="startReply(c)">✏️ Edit Reply</button>
+              </div>
+            }
+
+            <!-- No Reply Yet -->
+            @if (!c.reply && !c.replying) {
+              <div class="no-reply-bar">
+                <span>⏳ Not yet replied</span>
+                <button class="btn-reply" (click)="startReply(c)">💬 Reply</button>
+              </div>
+            }
+
+            <!-- Reply Box -->
+            @if (c.replying) {
+              <div class="reply-box">
+                <textarea [(ngModel)]="c.draftReply" rows="3"
+                  placeholder="Type your reply to {{ c.employeeName }}...">
+                </textarea>
+                <div class="reply-actions">
+                  <button class="btn-cancel" (click)="cancelReply(c)">Cancel</button>
+                  <button class="btn-send-reply" (click)="sendReply(c)" [disabled]="!c.draftReply.trim()">
+                    📤 Send Reply
+                  </button>
+                </div>
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+</div>

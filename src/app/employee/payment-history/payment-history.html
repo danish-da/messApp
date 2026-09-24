@@ -1,1 +1,284 @@
-<p>payment-history works!</p>
+<div class="layout" [class.sidebar-open]="sidebarOpen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🍱</span>
+      <span class="brand-name">MessApp</span>
+    </div>
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/employee'}"
+          (click)="sidebarOpen = false">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item logout" routerLink="/login">
+        <span class="nav-icon">🚪</span><span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="overlay" (click)="sidebarOpen = false"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" (click)="sidebarOpen = !sidebarOpen">☰</button>
+      <div class="topbar-title">💳 Payment History</div>
+      <div class="topbar-user">
+        <div class="avatar">{{ employeeName[0] }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ employeeName }}</span>
+          <span class="user-role">{{ providerName }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Summary Stats -->
+      <div class="stats-grid">
+        <div class="stat-card" style="--accent:#52b788">
+          <div class="stat-icon">💰</div>
+          <div>
+            <div class="stat-value">₹{{ totalPaid.toLocaleString('en-IN') }}</div>
+            <div class="stat-label">Total Paid</div>
+          </div>
+        </div>
+        <div class="stat-card" style="--accent:#ff6b35">
+          <div class="stat-icon">⚠️</div>
+          <div>
+            <div class="stat-value">{{ pendingCount }}</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+        <div class="stat-card" style="--accent:#4361ee">
+          <div class="stat-icon">📅</div>
+          <div>
+            <div class="stat-value" style="font-size:0.95rem">{{ lastPayment }}</div>
+            <div class="stat-label">Last Payment</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Due Payment Banner -->
+      <div class="due-banner">
+        <div class="due-left">
+          <div class="due-label">Amount Due — {{ dueMonth }}</div>
+          <div class="due-amount">₹{{ dueAmount.toLocaleString('en-IN') }}</div>
+        </div>
+        <button class="btn-pay" (click)="openPayModal()">💳 Pay Now</button>
+      </div>
+
+      <!-- Gateway Selector -->
+      <div class="section-title">
+        <span>⚙️ Payment Gateway</span>
+        <button class="btn-config" (click)="showConfigPanel = !showConfigPanel">
+          {{ showConfigPanel ? '✖ Close' : '⚙ Configure' }}
+        </button>
+      </div>
+
+      <div class="gateway-tabs">
+        @for (gw of gateways; track gw.id) {
+          <button class="gw-tab" [class.active]="selectedGateway === gw.id"
+            (click)="selectGateway(gw.id)">
+            <span>{{ gw.icon }}</span>
+            <span>{{ gw.label }}</span>
+          </button>
+        }
+      </div>
+
+      @if (showConfigPanel) {
+        <div class="config-panel">
+          <h4>🔧 Gateway Configuration</h4>
+          <div class="config-grid">
+            <div class="config-field">
+              <label>Razorpay Key ID</label>
+              <input type="text" [ngModel]="config().razorpayKey"
+                (ngModelChange)="paymentSvc.updateConfig({razorpayKey: $event})"
+                placeholder="rzp_live_XXXXXXXXXX" />
+            </div>
+            <div class="config-field">
+              <label>Stripe Publishable Key</label>
+              <input type="text" [ngModel]="config().stripeKey"
+                (ngModelChange)="paymentSvc.updateConfig({stripeKey: $event})"
+                placeholder="pk_live_XXXXXXXXXX" />
+            </div>
+            <div class="config-field">
+              <label>UPI ID</label>
+              <input type="text" [ngModel]="config().upiId"
+                (ngModelChange)="paymentSvc.updateConfig({upiId: $event})"
+                placeholder="mess@upi" />
+            </div>
+            <div class="config-field">
+              <label>UPI Name</label>
+              <input type="text" [ngModel]="config().upiName"
+                (ngModelChange)="paymentSvc.updateConfig({upiName: $event})"
+                placeholder="Mess Provider Name" />
+            </div>
+          </div>
+          <div class="notif-row">
+            <label class="toggle-label">
+              <input type="checkbox" [ngModel]="notifConfig().smsEnabled"
+                (ngModelChange)="notifSvc.updateConfig({smsEnabled: $event})">
+              📱 SMS notification to provider on payment
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" [ngModel]="notifConfig().emailEnabled"
+                (ngModelChange)="notifSvc.updateConfig({emailEnabled: $event})">
+              📧 Email notification to provider on payment
+            </label>
+          </div>
+        </div>
+      }
+
+      <!-- Transaction History -->
+      <div class="section-title" style="margin-top:1.5rem">
+        <span>📜 Transaction History</span>
+        <span class="badge">{{ transactions().length }} records</span>
+      </div>
+
+      <!-- Desktop Table -->
+      <div class="table-wrap desktop-only">
+        <table class="txn-table">
+          <thead>
+            <tr>
+              <th>Txn ID</th>
+              <th>Date</th>
+              <th>Month</th>
+              <th>Amount</th>
+              <th>Gateway</th>
+              <th>Reference</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of transactions(); track t.id) {
+              <tr>
+                <td class="txn-id">{{ t.id }}</td>
+                <td>{{ t.date }}</td>
+                <td>{{ t.month }}</td>
+                <td class="amount-cell">₹{{ t.amount.toLocaleString('en-IN') }}</td>
+                <td>
+                  <span class="gw-chip">{{ gatewayIcon(t.gateway) }} {{ t.gateway }}</span>
+                </td>
+                <td class="ref-cell">{{ t.reference }}</td>
+                <td>
+                  <span class="status-chip" [class]="statusClass(t.status)">
+                    @if (t.status === 'success') { ✅ Success }
+                    @else if (t.status === 'pending') { ⏳ Pending }
+                    @else { ❌ Failed }
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="txn-cards mobile-only">
+        @for (t of transactions(); track t.id) {
+          <div class="txn-card">
+            <div class="txn-card-top">
+              <span class="txn-card-id">{{ t.id }}</span>
+              <span class="status-chip" [class]="statusClass(t.status)">
+                @if (t.status === 'success') { ✅ }
+                @else if (t.status === 'pending') { ⏳ }
+                @else { ❌ }
+                {{ t.status }}
+              </span>
+            </div>
+            <div class="txn-card-amount">₹{{ t.amount.toLocaleString('en-IN') }}</div>
+            <div class="txn-card-meta">{{ t.date }} · {{ gatewayIcon(t.gateway) }} {{ t.gateway }} · {{ t.reference }}</div>
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+@if (showPayModal) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+      @if (payDone) {
+        <div class="pay-success">
+          <div class="success-icon">✅</div>
+          <h3>Payment Successful!</h3>
+          <p>₹{{ dueAmount.toLocaleString('en-IN') }} paid via {{ selectedGateway }}</p>
+          <p class="notif-note">📱📧 Provider has been notified via SMS & Email</p>
+        </div>
+      } @else {
+        <div class="modal-header">
+          <h3>Pay Mess Fee — {{ dueMonth }}</h3>
+          <button class="modal-close" (click)="closeModal()">✖</button>
+        </div>
+
+        <div class="modal-amount">
+          <span class="modal-amount-label">Amount Due</span>
+          <span class="modal-amount-val">₹{{ dueAmount.toLocaleString('en-IN') }}</span>
+        </div>
+
+        <!-- Gateway tabs inside modal -->
+        <div class="gateway-tabs">
+          @for (gw of gateways; track gw.id) {
+            <button class="gw-tab" [class.active]="selectedGateway === gw.id"
+              (click)="selectGateway(gw.id)">
+              <span>{{ gw.icon }}</span>
+              <span>{{ gw.label }}</span>
+            </button>
+          }
+        </div>
+
+        <!-- UPI section -->
+        @if (selectedGateway === 'upi') {
+          <div class="upi-section">
+            <div class="qr-placeholder">
+              <span class="qr-emoji">📱</span>
+              <div class="qr-mock">QR CODE</div>
+            </div>
+            <div class="upi-info">
+              <div class="upi-id-label">UPI ID</div>
+              <div class="upi-id-val">{{ config().upiId }}</div>
+              <div class="upi-name">{{ config().upiName }}</div>
+            </div>
+            <div class="upi-confirm">
+              <label>Enter your UPI Transaction ID to confirm</label>
+              <input type="text" [(ngModel)]="upiInput" placeholder="e.g. UPI123456789" />
+            </div>
+          </div>
+        }
+
+        <!-- Razorpay / Stripe -->
+        @if (selectedGateway === 'razorpay') {
+          <div class="gateway-info-box">
+            <span class="gw-logo">💳</span>
+            <p>You'll be redirected to <strong>Razorpay</strong> secure checkout.<br>
+              Supports UPI, cards, net banking & wallets.</p>
+          </div>
+        }
+        @if (selectedGateway === 'stripe') {
+          <div class="gateway-info-box">
+            <span class="gw-logo">🔵</span>
+            <p>You'll be redirected to <strong>Stripe</strong> secure checkout.<br>
+              Supports all major credit/debit cards.</p>
+          </div>
+        }
+
+        <button class="btn-confirm-pay" (click)="pay()"
+          [disabled]="payLoading || (selectedGateway === 'upi' && !upiInput.trim())">
+          @if (payLoading) { <span class="spinner"></span> Processing… }
+          @else { 💸 Confirm Payment }
+        </button>
+      }
+
+    </div>
+  </div>
+}

@@ -1,0 +1,284 @@
+$primary: #ff6b35;
+$primary-dark: #e85d2a;
+$bg: #0f1923;
+$surface: #1a2535;
+$surface2: #1e2d40;
+$border: #2e3d52;
+$text: #e8eaf0;
+$muted: #8892a4;
+$green: #52b788;
+$red: #e63946;
+$blue: #4361ee;
+$sidebar-w: 240px;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:host { display: block; min-height: 100vh; background: $bg; }
+
+// ── Layout ──────────────────────────────────────────
+.layout { display: flex; min-height: 100vh; background: $bg; font-family: 'Segoe UI', sans-serif; color: $text; }
+
+// ── Sidebar ─────────────────────────────────────────
+.sidebar {
+  width: $sidebar-w; background: $surface; border-right: 1px solid $border;
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  transition: transform 0.3s ease;
+  @media (max-width: 768px) {
+    transform: translateX(-100%);
+    .layout.sidebar-open & { transform: translateX(0); }
+  }
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1.5rem 1.25rem; border-bottom: 1px solid $border;
+  .brand-icon { font-size: 1.8rem; }
+  .brand-name { font-size: 1.2rem; font-weight: 700; color: $primary; }
+}
+.nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.nav-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.7rem 0.9rem; border-radius: 10px;
+  color: $muted; text-decoration: none; font-size: 0.9rem; transition: all 0.2s;
+  .nav-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+  &:hover  { background: $surface2; color: $text; }
+  &.active { background: rgba($primary, 0.15); color: $primary; font-weight: 600; }
+  &.logout:hover { background: rgba($red, 0.12); color: $red; }
+}
+.sidebar-footer { padding: 0.75rem; border-top: 1px solid $border; }
+.overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99;
+  @media (max-width: 768px) { .layout.sidebar-open & { display: block; } }
+}
+
+// ── Main / Topbar ────────────────────────────────────
+.main { flex: 1; margin-left: $sidebar-w; display: flex; flex-direction: column;
+  @media (max-width: 768px) { margin-left: 0; } }
+.topbar {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem 1.5rem; background: $surface; border-bottom: 1px solid $border;
+  position: sticky; top: 0; z-index: 50;
+  .menu-btn { display: none; background: none; border: none; color: $text; font-size: 1.4rem; cursor: pointer;
+    @media (max-width: 768px) { display: block; } }
+  .topbar-title { flex: 1; font-size: 1rem; font-weight: 600; }
+}
+.topbar-user { display: flex; align-items: center; gap: 0.75rem;
+  .avatar { width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; }
+  .user-name { display: block; font-size: 0.9rem; font-weight: 600; }
+  .user-role { display: block; font-size: 0.75rem; color: $muted; }
+}
+.content { padding: 1.5rem; flex: 1; }
+
+// ── Stats ────────────────────────────────────────────
+.stats-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: $surface; border: 1px solid $border; border-radius: 14px;
+  padding: 1.1rem; display: flex; align-items: center; gap: 1rem;
+  border-left: 4px solid var(--accent, $primary); animation: slideUp 0.4s ease;
+  .stat-icon { font-size: 1.8rem; }
+  .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--accent, $primary); }
+  .stat-label { font-size: 0.75rem; color: $muted; margin-top: 0.1rem; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Due Banner ───────────────────────────────────────
+.due-banner {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+  background: linear-gradient(135deg, rgba($primary,0.12), rgba($blue,0.08));
+  border: 1px solid rgba($primary, 0.25); border-radius: 16px;
+  padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; animation: slideUp 0.4s ease;
+  .due-label { font-size: 0.82rem; color: $muted; margin-bottom: 0.25rem; }
+  .due-amount { font-size: 1.75rem; font-weight: 800; color: $primary; }
+}
+.btn-pay {
+  padding: 0.75rem 1.75rem; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  &:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba($primary, 0.4); }
+}
+
+// ── Section Title ────────────────────────────────────
+.section-title {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+  .badge { font-size: 0.75rem; background: rgba($primary,0.12); color: $primary;
+    padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 500; }
+}
+.btn-config {
+  padding: 0.35rem 0.9rem; border-radius: 8px; border: 1px solid $border;
+  background: $surface; color: $muted; font-size: 0.8rem; cursor: pointer;
+  &:hover { border-color: $primary; color: $primary; }
+}
+
+// ── Gateway Tabs ─────────────────────────────────────
+.gateway-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.gw-tab {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.6rem 1rem; border-radius: 10px;
+  background: $surface; border: 1.5px solid $border; color: $muted;
+  font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  &:hover { border-color: $primary; color: $text; }
+  &.active { background: rgba($primary,0.12); border-color: $primary; color: $primary; font-weight: 700; }
+}
+
+// ── Config Panel ─────────────────────────────────────
+.config-panel {
+  background: $surface; border: 1px solid $border; border-radius: 14px;
+  padding: 1.25rem; margin-bottom: 1.5rem; animation: slideUp 0.3s ease;
+  h4 { margin-bottom: 1rem; font-size: 0.95rem; }
+}
+.config-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.85rem; margin-bottom: 1rem;
+}
+.config-field {
+  label { display: block; font-size: 0.8rem; color: $muted; margin-bottom: 0.35rem; font-weight: 600; }
+  input {
+    width: 100%; background: #111d2b; border: 1.5px solid $border;
+    border-radius: 9px; padding: 0.6rem 0.8rem; color: $text; font-size: 0.88rem; outline: none;
+    &:focus { border-color: $primary; }
+    &::placeholder { color: #3d4f63; }
+  }
+}
+.notif-row { display: flex; flex-direction: column; gap: 0.5rem; }
+.toggle-label {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.85rem; color: $text; cursor: pointer;
+  input[type=checkbox] { accent-color: $primary; width: 16px; height: 16px; }
+}
+
+// ── Table ─────────────────────────────────────────
+.table-wrap {
+  background: $surface; border: 1px solid $border; border-radius: 14px; overflow: hidden;
+  animation: slideUp 0.5s ease;
+}
+.txn-table {
+  width: 100%; border-collapse: collapse;
+  th { background: $surface2; padding: 0.85rem 1rem; text-align: left;
+    font-size: 0.78rem; color: $muted; text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid $border; }
+  td { padding: 0.85rem 1rem; font-size: 0.88rem; border-bottom: 1px solid rgba($border, 0.5); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+}
+.txn-id { font-family: monospace; color: $muted; font-size: 0.82rem; }
+.amount-cell { font-weight: 700; color: $green; }
+.ref-cell { font-family: monospace; font-size: 0.8rem; color: $muted; }
+.gw-chip { font-size: 0.78rem; background: rgba($primary,0.1); color: $primary;
+  padding: 0.2rem 0.55rem; border-radius: 20px; text-transform: capitalize; }
+.status-chip { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem;
+  padding: 0.2rem 0.65rem; border-radius: 20px; font-weight: 600; white-space: nowrap;
+  &.chip-success { background: rgba($green,0.15); color: $green; }
+  &.chip-pending { background: rgba($primary,0.12); color: $primary; }
+  &.chip-failed  { background: rgba($red,0.15); color: $red; }
+}
+
+// ── Mobile Cards ──────────────────────────────────────
+.txn-cards { display: flex; flex-direction: column; gap: 0.75rem; }
+.txn-card {
+  background: $surface; border: 1px solid $border; border-radius: 14px;
+  padding: 1rem; animation: slideUp 0.4s ease;
+}
+.txn-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; }
+.txn-card-id { font-family: monospace; font-size: 0.8rem; color: $muted; }
+.txn-card-amount { font-size: 1.3rem; font-weight: 700; color: $green; margin-bottom: 0.3rem; }
+.txn-card-meta { font-size: 0.78rem; color: $muted; }
+
+// ── Desktop/Mobile visibility ─────────────────────────
+.desktop-only { @media (max-width: 640px) { display: none; } }
+.mobile-only  { display: none; @media (max-width: 640px) { display: flex; } }
+
+// ── Modal ─────────────────────────────────────────────
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; padding: 1rem;
+}
+.modal {
+  background: $surface; border: 1px solid $border; border-radius: 20px;
+  padding: 1.75rem; width: 100%; max-width: 440px;
+  animation: slideUp 0.3s ease;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;
+  h3 { font-size: 1.1rem; font-weight: 700; }
+  .modal-close { background: none; border: none; color: $muted; font-size: 1.1rem; cursor: pointer;
+    &:hover { color: $red; } }
+}
+.modal-amount {
+  background: rgba($primary,0.08); border: 1px solid rgba($primary,0.2); border-radius: 12px;
+  padding: 1rem 1.25rem; margin-bottom: 1.25rem; text-align: center;
+  .modal-amount-label { font-size: 0.8rem; color: $muted; display: block; margin-bottom: 0.3rem; }
+  .modal-amount-val { font-size: 2rem; font-weight: 800; color: $primary; }
+}
+
+// ── UPI Section ───────────────────────────────────────
+.upi-section { margin: 1rem 0; }
+.qr-placeholder {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  padding: 1.25rem; background: $surface2; border-radius: 12px; margin-bottom: 0.85rem;
+  .qr-emoji { font-size: 2.5rem; }
+  .qr-mock {
+    width: 120px; height: 120px; background: repeating-linear-gradient(
+      45deg, rgba($primary,0.1) 0, rgba($primary,0.1) 4px, transparent 4px, transparent 10px);
+    border: 2px solid rgba($primary,0.3); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: $muted; font-size: 0.75rem; font-weight: 600; letter-spacing: 2px;
+  }
+}
+.upi-info { text-align: center; margin-bottom: 0.85rem;
+  .upi-id-label { font-size: 0.72rem; color: $muted; text-transform: uppercase; letter-spacing: 0.5px; }
+  .upi-id-val { font-size: 1.1rem; font-weight: 700; color: $text; margin: 0.2rem 0; }
+  .upi-name { font-size: 0.82rem; color: $muted; }
+}
+.upi-confirm {
+  label { display: block; font-size: 0.8rem; color: $muted; margin-bottom: 0.35rem; }
+  input {
+    width: 100%; background: #111d2b; border: 1.5px solid $border;
+    border-radius: 9px; padding: 0.65rem 0.85rem; color: $text; font-size: 0.9rem; outline: none;
+    &:focus { border-color: $primary; }
+    &::placeholder { color: #3d4f63; }
+  }
+}
+
+// ── Gateway Info Box ──────────────────────────────────
+.gateway-info-box {
+  background: $surface2; border-radius: 12px; padding: 1rem 1.25rem;
+  display: flex; align-items: flex-start; gap: 1rem; margin: 1rem 0;
+  .gw-logo { font-size: 2rem; flex-shrink: 0; }
+  p { font-size: 0.88rem; color: $muted; line-height: 1.6;
+    strong { color: $text; } }
+}
+
+// ── Confirm Button ────────────────────────────────────
+.btn-confirm-pay {
+  width: 100%; margin-top: 1.25rem; padding: 0.9rem; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+  &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba($primary,0.4); }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+.spinner {
+  width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Success State ─────────────────────────────────────
+.pay-success {
+  text-align: center; padding: 1rem 0;
+  .success-icon { font-size: 4rem; margin-bottom: 0.75rem; }
+  h3 { font-size: 1.3rem; font-weight: 700; color: $green; margin-bottom: 0.5rem; }
+  p { font-size: 0.9rem; color: $muted; margin-bottom: 0.4rem; }
+  .notif-note { font-size: 0.82rem; color: $primary; }
+}
