@@ -1,0 +1,109 @@
+<div class="layout" [class.sidebar-open]="sidebarOpen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🍱</span>
+      <span class="brand-name">MessApp</span>
+    </div>
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/employee'}"
+          (click)="sidebarOpen = false">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item logout" routerLink="/login">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Overlay -->
+  <div class="overlay" (click)="sidebarOpen = false"></div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="menu-btn" (click)="sidebarOpen = !sidebarOpen">☰</button>
+      <div class="topbar-info">
+        <span class="topbar-date">{{ today }}</span>
+      </div>
+      <div class="topbar-user">
+        <div class="avatar">{{ employeeName[0] }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ employeeName }}</span>
+          <span class="user-role">Employee</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Welcome -->
+      <div class="welcome-banner">
+        <div>
+          <h2>Good {{ greeting }}, {{ employeeName.split(' ')[0] }}! 👋</h2>
+          <p>Your mess: <strong>{{ providerName }}</strong></p>
+        </div>
+        <div class="banner-icon">🍱</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        @for (stat of stats; track stat.label) {
+          <div class="stat-card" [style.--accent]="stat.color">
+            <div class="stat-icon">{{ stat.icon }}</div>
+            <div class="stat-body">
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-label">{{ stat.label }}</div>
+            </div>
+            <div class="stat-glow"></div>
+          </div>
+        }
+      </div>
+
+      <!-- Today's Meals -->
+      <div class="section-title">
+        <span>🍽️ Today's Menu</span>
+        <span class="badge">Mark your meals</span>
+      </div>
+
+      <div class="meals-grid">
+        @for (meal of meals; track meal.slot) {
+          <div class="meal-card" [class]="meal.status">
+            <div class="meal-header">
+              <span class="meal-icon">{{ meal.icon }}</span>
+              <div>
+                <div class="meal-slot">{{ meal.slot }}</div>
+                <div class="meal-time">{{ meal.time }}</div>
+              </div>
+              <div class="meal-status-badge" [class]="meal.status">
+                @if (meal.status === 'needed') { ✅ Needed }
+                @else if (meal.status === 'not-needed') { ❌ Skipped }
+                @else { ⏳ Pending }
+              </div>
+            </div>
+            <div class="meal-menu">{{ meal.menu }}</div>
+            <div class="meal-price">₹60 per meal</div>
+            <div class="meal-actions">
+              <button class="btn-needed" [class.active]="meal.status === 'needed'"
+                (click)="markMeal(meal, 'needed')">✅ I Need It</button>
+              <button class="btn-skip" [class.active]="meal.status === 'not-needed'"
+                (click)="markMeal(meal, 'not-needed')">❌ Skip</button>
+            </div>
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+</div>

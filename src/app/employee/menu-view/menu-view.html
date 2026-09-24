@@ -1,0 +1,109 @@
+<div class="layout" [class.sidebar-open]="sidebarOpen">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🍱</span>
+      <span class="brand-name">MessApp</span>
+    </div>
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/employee'}"
+          (click)="sidebarOpen = false">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item logout" routerLink="/login">
+        <span class="nav-icon">🚪</span><span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="overlay" (click)="sidebarOpen = false"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" (click)="sidebarOpen = !sidebarOpen">☰</button>
+      <div class="topbar-title">📋 Menu View</div>
+      <div class="topbar-user">
+        <div class="avatar">{{ employeeName[0] }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ employeeName }}</span>
+          <span class="user-role">{{ providerName }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Day Tabs -->
+      <div class="day-tabs">
+        @for (day of weekMenu; track day.date; let i = $index) {
+          <button class="day-tab" [class.active]="selectedDay === i"
+            [class.today]="day.isToday" (click)="selectedDay = i">
+            <span class="day-label">{{ day.label }}</span>
+            @if (day.isToday) { <span class="today-dot"></span> }
+          </button>
+        }
+      </div>
+
+      <!-- Selected Day Header -->
+      <div class="day-header">
+        <div>
+          <h2>{{ currentDay.date }}</h2>
+          @if (currentDay.isToday) { <span class="today-badge">Today</span> }
+        </div>
+        <div class="day-summary">
+          <span class="summary-chip">✅ {{ daySummary.needed }} meals needed</span>
+          <span class="summary-chip cost">💰 ₹{{ daySummary.cost }} today</span>
+        </div>
+      </div>
+
+      <!-- Meal Cards -->
+      <div class="meals-grid">
+        @for (meal of currentDay.meals; track meal.slot) {
+          <div class="meal-card" [class]="meal.status">
+
+            <div class="meal-top">
+              <div class="meal-icon-wrap">
+                <span class="meal-icon">{{ meal.icon }}</span>
+              </div>
+              <div class="meal-info">
+                <div class="meal-slot">{{ meal.slot }}</div>
+                <div class="meal-time">{{ meal.time }}</div>
+              </div>
+              <div class="status-badge" [class]="meal.status">
+                @if (meal.status === 'needed')     { ✅ Needed }
+                @else if (meal.status === 'not-needed') { ❌ Skipped }
+                @else                              { ⏳ Pending }
+              </div>
+            </div>
+
+            <div class="meal-menu">
+              <span class="menu-label">Menu</span>
+              <span class="menu-text">{{ meal.menu }}</span>
+            </div>
+
+            <div class="meal-rate">₹60 / meal</div>
+
+            <div class="meal-actions">
+              <button class="btn-need" [class.active]="meal.status === 'needed'"
+                (click)="mark(meal, 'needed')">
+                ✅ I Need It
+              </button>
+              <button class="btn-skip" [class.active]="meal.status === 'not-needed'"
+                (click)="mark(meal, 'not-needed')">
+                ❌ Skip
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+</div>

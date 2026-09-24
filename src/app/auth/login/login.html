@@ -1,0 +1,58 @@
+<div class="auth-wrapper">
+  <div class="auth-card" [class.shake]="shakeForm">
+
+    <div class="brand">
+      <div class="brand-icon">🍱</div>
+      <h1>MessApp</h1>
+      <p>Your daily meal companion</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+
+      <div class="field" [class.focused]="focused === 'email'">
+        <label>Email</label>
+        <div class="input-wrap">
+          <span class="icon">✉️</span>
+          <input type="email" formControlName="email"
+            (focus)="focused = 'email'" (blur)="focused = ''" autocomplete="email" />
+        </div>
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <span class="error">Valid email required</span>
+        }
+      </div>
+
+      <div class="field" [class.focused]="focused === 'password'">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="icon">🔒</span>
+          <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+            (focus)="focused = 'password'" (blur)="focused = ''" autocomplete="current-password" />
+          <button type="button" class="toggle-pw" (click)="showPassword = !showPassword">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <span class="error">Password required</span>
+        }
+      </div>
+
+      @if (errorMsg) {
+        <div class="alert">{{ errorMsg }}</div>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
+        @if (isLoading) { <span class="spinner"></span> } @else { Sign In }
+      </button>
+
+    </form>
+
+    <p class="switch-link">
+      Don't have an account? <a routerLink="/register">Register</a>
+    </p>
+
+  </div>
+
+  <div class="bg-circles">
+    <span></span><span></span><span></span>
+  </div>
+</div>

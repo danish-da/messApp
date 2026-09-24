@@ -1,0 +1,143 @@
+<div class="layout" [class.sidebar-open]="sidebarOpen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🍱</span>
+      <span class="brand-name">MessApp</span>
+    </div>
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/provider'}"
+          (click)="sidebarOpen = false">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item logout" routerLink="/login">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Overlay -->
+  <div class="overlay" (click)="sidebarOpen = false"></div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="menu-btn" (click)="sidebarOpen = !sidebarOpen">☰</button>
+      <div class="topbar-info">
+        <span class="topbar-date">{{ today }}</span>
+      </div>
+      <div class="topbar-user">
+        <div class="avatar">P</div>
+        <div class="user-info">
+          <span class="user-name">{{ providerName }}</span>
+          <span class="user-role">Provider</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- Welcome -->
+      <div class="welcome-banner">
+        <div>
+          <h2>Good {{ greeting }}, Provider! 👋</h2>
+          <p>Manage your mess — <strong>{{ providerName }}</strong></p>
+        </div>
+        <div class="banner-icon">🍽️</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        @for (stat of stats; track stat.label) {
+          <div class="stat-card" [style.--accent]="stat.color">
+            <div class="stat-icon">{{ stat.icon }}</div>
+            <div class="stat-body">
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-label">{{ stat.label }}</div>
+            </div>
+            <div class="stat-glow"></div>
+          </div>
+        }
+      </div>
+
+      <!-- Menu Upload -->
+      <div class="section-title">
+        <span>📤 Today's Menu Upload</span>
+        <span class="badge">Upload before 9:00 AM</span>
+      </div>
+
+      <div class="meals-grid">
+        @for (meal of meals; track meal.slot) {
+          <div class="meal-card" [class.uploaded]="meal.uploaded">
+            <div class="meal-header">
+              <span class="meal-icon">{{ meal.icon }}</span>
+              <div>
+                <div class="meal-slot">{{ meal.slot }}</div>
+                <div class="meal-time">{{ meal.time }}</div>
+              </div>
+              @if (meal.uploaded) {
+                <span class="uploaded-badge">✅ Uploaded</span>
+              } @else {
+                <span class="pending-badge">⏳ Pending</span>
+              }
+            </div>
+            <div class="meal-input-wrap">
+              <input type="text" [(ngModel)]="meal.menu"
+                [placeholder]="'e.g. Idli, Sambar, Chutney'"
+                [disabled]="meal.uploaded" />
+            </div>
+            @if (!meal.uploaded) {
+              <button class="btn-upload" (click)="uploadMenu(meal)" [disabled]="!meal.menu.trim()">
+                📤 Upload Menu
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Employee Responses -->
+      <div class="section-title" style="margin-top: 1.75rem">
+        <span>📊 Today's Employee Responses</span>
+        <span class="badge">{{ responses.length }} responded</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="response-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>🌅 Breakfast</th>
+              <th>☀️ Lunch</th>
+              <th>🌙 Dinner</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of responses; track r.name) {
+              <tr>
+                <td class="emp-name">
+                  <div class="emp-avatar">{{ r.name[0] }}</div>
+                  {{ r.name }}
+                </td>
+                <td><span class="status-chip" [class]="r.breakfast">{{ statusIcon(r.breakfast) }} {{ r.breakfast }}</span></td>
+                <td><span class="status-chip" [class]="r.lunch">{{ statusIcon(r.lunch) }} {{ r.lunch }}</span></td>
+                <td><span class="status-chip" [class]="r.dinner">{{ statusIcon(r.dinner) }} {{ r.dinner }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>

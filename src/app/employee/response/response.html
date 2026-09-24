@@ -1,0 +1,117 @@
+<div class="layout" [class.sidebar-open]="sidebarOpen">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🍱</span>
+      <span class="brand-name">MessApp</span>
+    </div>
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-item" [routerLink]="item.route" routerLinkActive="active"
+          [routerLinkActiveOptions]="{exact: item.route === '/employee'}"
+          (click)="sidebarOpen = false">
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-footer">
+      <a class="nav-item logout" routerLink="/login">
+        <span class="nav-icon">🚪</span><span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="overlay" (click)="sidebarOpen = false"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" (click)="sidebarOpen = !sidebarOpen">☰</button>
+      <div class="topbar-title">📊 My Responses</div>
+      <div class="topbar-user">
+        <div class="avatar">{{ employeeName[0] }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ employeeName }}</span>
+          <span class="user-role">{{ providerName }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Month Filter -->
+      <div class="month-tabs">
+        @for (m of months; track m) {
+          <button class="month-tab" [class.active]="selectedMonth === m"
+            (click)="selectedMonth = m">{{ m }}</button>
+        }
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="stats-row">
+        <div class="stat-box green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-val">{{ totalNeeded }}</div>
+          <div class="stat-lbl">Meals Needed</div>
+        </div>
+        <div class="stat-box red">
+          <div class="stat-icon">❌</div>
+          <div class="stat-val">{{ totalSkipped }}</div>
+          <div class="stat-lbl">Meals Skipped</div>
+        </div>
+        <div class="stat-box orange">
+          <div class="stat-icon">💰</div>
+          <div class="stat-val">₹{{ totalBill }}</div>
+          <div class="stat-lbl">Estimated Bill</div>
+        </div>
+        <div class="stat-box blue">
+          <div class="stat-icon">📅</div>
+          <div class="stat-val">{{ responses.length }}</div>
+          <div class="stat-lbl">Days Recorded</div>
+        </div>
+      </div>
+
+      <!-- Response Table -->
+      <div class="section-title">
+        <span>📋 Daily Response History</span>
+        <span class="badge">{{ selectedMonth }}</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="resp-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Day</th>
+              <th>🌅 Breakfast</th>
+              <th>☀️ Lunch</th>
+              <th>🌙 Dinner</th>
+              <th>Daily Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of responses; track r.date) {
+              <tr>
+                <td class="date-cell">{{ r.date }}</td>
+                <td class="day-cell">{{ r.day }}</td>
+                <td><span class="chip" [class]="chipClass(r.breakfast)">{{ icon(r.breakfast) }}</span></td>
+                <td><span class="chip" [class]="chipClass(r.lunch)">{{ icon(r.lunch) }}</span></td>
+                <td><span class="chip" [class]="chipClass(r.dinner)">{{ icon(r.dinner) }}</span></td>
+                <td class="cost-cell">
+                  ₹{{ [r.breakfast, r.lunch, r.dinner].filter(s => s === 'needed').length * 60 }}
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="5">Total Estimated Bill</td>
+              <td class="cost-cell total">₹{{ totalBill }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>

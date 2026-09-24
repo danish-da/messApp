@@ -1,0 +1,111 @@
+<div class="auth-wrapper">
+  <div class="auth-card" [class.shake]="shakeForm">
+
+    <div class="brand">
+      <div class="brand-icon">🍱</div>
+      <h1>MessApp</h1>
+      <p>Create your account</p>
+    </div>
+
+    <!-- Role Toggle -->
+    <div class="role-toggle">
+      <button type="button" [class.active]="role === 'employee'" (click)="setRole('employee')">
+        👤 Employee
+      </button>
+      <button type="button" [class.active]="role === 'provider'" (click)="setRole('provider')">
+        🍽️ Provider
+      </button>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
+      <div class="field" [class.focused]="focused === 'name'">
+        <label>Full Name</label>
+        <div class="input-wrap">
+          <span class="icon">👤</span>
+          <input type="text" formControlName="name"
+            (focus)="focused = 'name'" (blur)="focused = ''" autocomplete="name" />
+        </div>
+        @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
+          <span class="error">Name is required</span>
+        }
+      </div>
+
+      <div class="field" [class.focused]="focused === 'phone'">
+        <label>Phone Number</label>
+        <div class="input-wrap">
+          <span class="icon">📱</span>
+          <input type="tel" formControlName="phone"
+            (focus)="focused = 'phone'" (blur)="focused = ''" autocomplete="tel" />
+        </div>
+        @if (registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched) {
+          <span class="error">Valid 10-digit phone required</span>
+        }
+      </div>
+
+      <div class="field" [class.focused]="focused === 'email'">
+        <label>Email</label>
+        <div class="input-wrap">
+          <span class="icon">✉️</span>
+          <input type="email" formControlName="email"
+            (focus)="focused = 'email'" (blur)="focused = ''" autocomplete="email" />
+        </div>
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <span class="error">Valid email required</span>
+        }
+      </div>
+
+      <div class="field" [class.focused]="focused === 'password'">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="icon">🔒</span>
+          <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+            (focus)="focused = 'password'" (blur)="focused = ''" autocomplete="new-password" />
+          <button type="button" class="toggle-pw" (click)="showPassword = !showPassword">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <span class="error">Min 6 characters required</span>
+        }
+      </div>
+
+      @if (role === 'employee') {
+        <div class="field" [class.focused]="focused === 'provider'">
+          <label>Select Your Mess Provider</label>
+          <div class="input-wrap">
+            <span class="icon">🏠</span>
+            <select formControlName="providerId"
+              (focus)="focused = 'provider'" (blur)="focused = ''">
+              <option value="" disabled>-- Choose a provider --</option>
+              @for (p of providers; track p.id) {
+                <option [value]="p.id">{{ p.name }} — {{ p.location }}</option>
+              }
+            </select>
+          </div>
+          @if (registerForm.get('providerId')?.invalid && registerForm.get('providerId')?.touched) {
+            <span class="error">Please select a provider</span>
+          }
+        </div>
+      }
+
+      @if (errorMsg) {
+        <div class="alert">{{ errorMsg }}</div>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
+        @if (isLoading) { <span class="spinner"></span> } @else { Create Account }
+      </button>
+
+    </form>
+
+    <p class="switch-link">
+      Already have an account? <a routerLink="/login">Sign In</a>
+    </p>
+
+  </div>
+
+  <div class="bg-circles">
+    <span></span><span></span><span></span>
+  </div>
+</div>
